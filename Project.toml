@@ -3,6 +3,9 @@ uuid = "c623fb47-a506-4f81-a1c5-224f929d029f"
 authors = ["pvpisistratus <pvpisistratus@gmail.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+GameZero = "9da27670-f782-11e9-1da1-f53579315bfe"
+
 [compat]
 julia = "1"
 
