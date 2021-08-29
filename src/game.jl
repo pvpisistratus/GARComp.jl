@@ -119,15 +119,12 @@ function draw()
     
     d1, d2 = RandomBattles.get_possible_decisions(dynamic_state, static_state,
         allow_nothing = false, allow_overfarming = false)
-    (iszero(d1) || iszero(d2)) &&
-        return
-    turn_output = RandomBattles.play_turn(
-        dynamic_state, static_state, RandomBattles.select_random_decision(d1, d2))
-    if turn_output.odds == 1.0
-        set_dynamic_state(turn_output.next_state_1)
-    else
-        set_dynamic_state(rand() < turn_output.odds ? 
-            turn_output.next_state_1 : turn_output.next_state_2)
+    if !iszero(d1) && !iszero(d2)
+        turn_output = RandomBattles.play_turn(dynamic_state, static_state, 
+            RandomBattles.select_random_decision(d1, d2))
+        turn_output.odds == 1.0 ? set_dynamic_state(turn_output.next_state_1) : 
+            set_dynamic_state(rand() < turn_output.odds ? 
+                turn_output.next_state_1 : turn_output.next_state_2)
     end
     
 end
