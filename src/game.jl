@@ -24,11 +24,11 @@ function set_dynamic_state(new_state::DynamicState)
     global dynamic_state = new_state
 end
 
-get_colors(team::UInt8, active::UInt8) = 
-    type_colors[static_state[team][active].primary_type], 
-    static_state[team][active].secondary_type < UInt8(19) ? 
-        type_colors[static_state[team][active].secondary_type] : 
-        type_colors[static_state[team][active].primary_type]
+get_colors(team::UInt8, mon::UInt8) = 
+    type_colors[static_state[team][mon].primary_type], 
+    static_state[team][mon].secondary_type < UInt8(19) ? 
+        type_colors[static_state[team][mon].secondary_type] : 
+        type_colors[static_state[team][mon].primary_type]
 
 pokemon = (Rect(94, 384, 20, 40), Rect(114, 384, 20, 40)), 
     (Rect(241, 242, 20, 40), Rect(261, 242, 20, 40))
@@ -67,10 +67,45 @@ function draw()
         draw(Rect(hp_bar_holders[i].x + 1, hp_bar_holders[i].y + 1, 
             hp_percent, 8), hp_color, fill = true)
     end
+
+    # switch buttons
+    switch1 = active[1] == 0x01 ? 0x02 : 0x01
+    switch2 = active[1] == 0x03 ? 0x02 : 0x03
+    switch1_colors = get_colors(0x01, switch1)
+    switch2_colors = get_colors(0x01, switch2)
+    draw(Rect(146, 384, 9, 18), switch1_colors[1], fill = true)
+    draw(Rect(155, 384, 9, 18), switch1_colors[2], fill = true)
+    draw(Rect(146, 406, 9, 18), switch2_colors[1], fill = true)
+    draw(Rect(155, 406, 9, 18), switch2_colors[2], fill = true)
+    # println(dynamic_state[0x01].switch_cooldown)
+    draw(Rect(146, 384, 18, 
+        (3 * Int64(dynamic_state[0x01].switch_cooldown)) ÷ 20), 
+        colorant"grey14", fill = true)
+    draw(Rect(146, 406, 18, 
+        (3 * Int64(dynamic_state[0x01].switch_cooldown)) ÷ 20), 
+        colorant"grey14", fill = true)
+
+    # charged move buttons
+    draw(Circle(71, 393, 9), 
+        type_colors[static_state[0x01][active[1]].charged_move_1.move_type], 
+        fill = true)
+    draw(Circle(71, 415, 9), 
+        type_colors[static_state[0x01][active[1]].charged_move_2.move_type], 
+        fill = true)
+    draw(Rect(61, 383, 20, 20 - (20 * Int64(RandomBattles.get_energy(
+        dynamic_state[0x01][active[1]]))) ÷ Int64(RandomBattles.get_energy(
+        static_state[0x01][active[1]].charged_move_1))), 
+        colorant"grey14", fill = true)
+    draw(Rect(61, 405, 20, 20 - (20 * Int64(RandomBattles.get_energy(
+        dynamic_state[0x01][active[1]]))) ÷ Int64(RandomBattles.get_energy(
+        static_state[0x01][active[1]].charged_move_2))), 
+        colorant"grey14", fill = true)
+    
+    
     d1, d2 = RandomBattles.get_possible_decisions(dynamic_state, static_state,
         allow_nothing = false, allow_overfarming = false)
     (iszero(d1) || iszero(d2)) &&
-        return RandomBattles.battle_score(dynamic_state, static_state)
+        return
     turn_output = RandomBattles.play_turn(
         dynamic_state, static_state, RandomBattles.select_random_decision(d1, d2))
     if turn_output.odds == 1.0
@@ -79,6 +114,7 @@ function draw()
         set_dynamic_state(rand() < turn_output.odds ? 
             turn_output.next_state_1 : turn_output.next_state_2)
     end
+    
 end
 
 function update()
