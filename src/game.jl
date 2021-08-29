@@ -100,7 +100,22 @@ function draw()
         dynamic_state[0x01][active[1]]))) ÷ Int64(RandomBattles.get_energy(
         static_state[0x01][active[1]].charged_move_2))), 
         colorant"grey14", fill = true)
-    
+
+    # shields
+    num_shields =  RandomBattles.get_shields(dynamic_state[0x01])
+    num_shields > 0x00 ? draw(Actor("shield.png", pos = (41, 406))) : 0
+    num_shields > 0x01 ? draw(Actor("shield.png", pos = (41, 384))) : 0
+    num_shields =  RandomBattles.get_shields(dynamic_state[0x02])
+    num_shields > 0x00 ? draw(Actor("shield.png", pos = (290, 207))) : 0
+    num_shields > 0x01 ? draw(Actor("shield.png", pos = (270, 207))) : 0
+
+    # opponent mons
+    RandomBattles.get_hp(dynamic_state[0x02][0x01]) > 0x0000 ? 
+        draw(Circle(220, 217, 8), colorant"red", fill = true) : 0
+    RandomBattles.get_hp(dynamic_state[0x02][0x02]) > 0x0000 ? 
+        draw(Circle(240, 217, 8), colorant"red", fill = true) : 0
+    RandomBattles.get_hp(dynamic_state[0x02][0x03]) > 0x0000 ? 
+        draw(Circle(260, 217, 8), colorant"red", fill = true) : 0
     
     d1, d2 = RandomBattles.get_possible_decisions(dynamic_state, static_state,
         allow_nothing = false, allow_overfarming = false)
