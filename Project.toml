@@ -9,6 +9,7 @@ GameZero = "9da27670-f782-11e9-1da1-f53579315bfe"
 RandomBattles = "02d78f1d-6942-4113-b550-739f20f5c505"
 
 [compat]
+Colors = "0.12"
 julia = "1"
 
 [extras]
