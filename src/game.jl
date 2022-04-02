@@ -34,6 +34,17 @@ pokemon_labels = TextActor(team1[1], "open_sans";
 
 hp_bar_holders = Rect(62, 369, 102, 10), Rect(209, 227, 102, 10)
 
+charged_move_label = TextActor("charged move incoming!", "open_sans"; 
+   pos = (94, 474), font_size = 10, color = Int[255,255,255,255])
+
+d1, d2 = RandomBattles.get_possible_decisions(dynamic_state, static_state,
+   allow_nothing = false, allow_overfarming = false)
+
+home_decision = 0x02
+charged_move = 0x00
+in_turn = false
+opp_charged_move = false
+
 function get_hp_percent(team::UInt8, active::UInt8)
     percent = (UInt16(100) * 
         RandomBattles.get_hp(dynamic_state[team][active])) ÷ 
@@ -42,14 +53,6 @@ function get_hp_percent(team::UInt8, active::UInt8)
         percent >= 20 ? colorant"yellow" : colorant"red"
     return percent, color
 end
-
-d1, d2 = RandomBattles.get_possible_decisions(dynamic_state, static_state,
-    allow_nothing = false, allow_overfarming = false)
-
-home_decision = 0x02
-charged_move = 0x00
-in_turn = false
-opp_charged_move = false
 
 function draw()
     active = RandomBattles.get_active(dynamic_state)
@@ -101,6 +104,8 @@ function draw()
             dynamic_state[0x01][active[1]]))) ÷ Int64(RandomBattles.get_energy(
             static_state[0x01][active[1]].charged_move_2)))), 
             colorant"grey14", fill = true)
+    else 
+        draw(charged_move_label)
     end
 
     # shields
@@ -124,7 +129,7 @@ function update_turn()
     if !iszero(d1) && !iszero(d2)
         decision = home_decision, 
             #RandomBattles.select_random_decision(d1, d2)[1],
-            RandomBattles.select_random_decision(d1, d2)[2]
+            RandomBattles.select_decision_MCTS(dynamic_state, static_state)[2]
         turn_output = RandomBattles.play_turn(dynamic_state, static_state, 
             decision)
         global dynamic_state = 
